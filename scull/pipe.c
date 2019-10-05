@@ -67,6 +67,7 @@ static int scull_p_open(struct inode *inode, struct file *filp)
 {
 	struct scull_pipe *dev;
 
+	printk(KERN_INFO "scull_p_open \n");
 	dev = container_of(inode->i_cdev, struct scull_pipe, cdev);
 	filp->private_data = dev;
 
@@ -100,6 +101,7 @@ static int scull_p_release(struct inode *inode, struct file *filp)
 {
 	struct scull_pipe *dev = filp->private_data;
 
+	printk(KERN_INFO "scull_p_release \n");
 	/* remove this filp from the asynchronously notified filp's */
 	scull_p_fasync(-1, filp, 0);
 	down(&dev->sem);
@@ -125,6 +127,7 @@ static ssize_t scull_p_read (struct file *filp, char __user *buf, size_t count,
 {
 	struct scull_pipe *dev = filp->private_data;
 
+	printk(KERN_INFO "scull_p_read  \n");
 	if (down_interruptible(&dev->sem))
 		return -ERESTARTSYS;
 
@@ -163,6 +166,7 @@ static ssize_t scull_p_read (struct file *filp, char __user *buf, size_t count,
  * error the semaphore will be released before returning. */
 static int scull_getwritespace(struct scull_pipe *dev, struct file *filp)
 {
+	printk(KERN_INFO "scull_getwritespace \n");
 	while (spacefree(dev) == 0) { /* full */
 		DEFINE_WAIT(wait);
 		
@@ -185,6 +189,7 @@ static int scull_getwritespace(struct scull_pipe *dev, struct file *filp)
 /* How much space is free? */
 static int spacefree(struct scull_pipe *dev)
 {
+	printk(KERN_INFO "scull_p_spacefree \n");
 	if (dev->rp == dev->wp)
 		return dev->buffersize - 1;
 	return ((dev->rp + dev->buffersize - dev->wp) % dev->buffersize) - 1;
@@ -196,6 +201,7 @@ static ssize_t scull_p_write(struct file *filp, const char __user *buf, size_t c
 	struct scull_pipe *dev = filp->private_data;
 	int result;
 
+	printk(KERN_INFO "scull_p_write \n");
 	if (down_interruptible(&dev->sem))
 		return -ERESTARTSYS;
 
@@ -240,6 +246,7 @@ static unsigned int scull_p_poll(struct file *filp, poll_table *wait)
 	 * if "wp" is right behind "rp" and empty if the
 	 * two are equal.
 	 */
+	printk(KERN_INFO "scull_p_poll \n");
 	down(&dev->sem);
 	poll_wait(filp, &dev->inq,  wait);
 	poll_wait(filp, &dev->outq, wait);
@@ -259,6 +266,7 @@ static int scull_p_fasync(int fd, struct file *filp, int mode)
 {
 	struct scull_pipe *dev = filp->private_data;
 
+	printk(KERN_INFO "scull_p_fasync \n");
 	return fasync_helper(fd, filp, mode, &dev->async_queue);
 }
 
@@ -272,6 +280,7 @@ static int scull_read_p_mem(struct seq_file *s, void *v)
 	int i;
 	struct scull_pipe *p;
 
+	printk(KERN_INFO "scull_read_p_mem \n");
 #define LIMIT (PAGE_SIZE-200)        /* don't print any more after this size */
 	seq_printf(s, "Default buffersize is %i\n", scull_p_buffer);
 	for(i = 0; i<scull_p_nr_devs && s->count <= LIMIT; i++) {
@@ -290,6 +299,7 @@ static int scull_read_p_mem(struct seq_file *s, void *v)
 
 static int scullpipe_proc_open(struct inode *inode, struct file *file)
 {
+	printk(KERN_INFO "scullpipe_proc_open \n");
 	return single_open(file, scull_read_p_mem, NULL);
 }
 
@@ -329,6 +339,7 @@ static void scull_p_setup_cdev(struct scull_pipe *dev, int index)
 {
 	int err, devno = scull_p_devno + index;
     
+	printk(KERN_INFO "scull_p_setup_cdev \n");
 	cdev_init(&dev->cdev, &scull_pipe_fops);
 	dev->cdev.owner = THIS_MODULE;
 	err = cdev_add (&dev->cdev, devno, 1);
@@ -349,6 +360,7 @@ int scull_p_init(dev_t firstdev)
 {
 	int i, result;
 
+	printk(KERN_INFO "scull_p_init \n");
 	result = register_chrdev_region(firstdev, scull_p_nr_devs, "scullp");
 	if (result < 0) {
 		printk(KERN_NOTICE "Unable to get scullp region, error %d\n", result);
@@ -387,6 +399,7 @@ void scull_p_cleanup(void)
 	remove_proc_entry("scullpipe", NULL);
 #endif
 
+	printk(KERN_INFO "scull_p_cleanup \n");
 	if (!scull_p_devices)
 		return; /* nothing else to release */
 

@@ -97,15 +97,18 @@ static void sbull_transfer(struct sbull_dev *dev, unsigned long sector,
 	unsigned long offset = sector*KERNEL_SECTOR_SIZE;
 	unsigned long nbytes = nsect*KERNEL_SECTOR_SIZE;
 
-    printk(KERN_INFO "sbull_transfer \n");
+    printk(KERN_INFO "sbull_transfer   :\n");
 	if ((offset + nbytes) > dev->size) {
 		printk (KERN_NOTICE "Beyond-end write (%ld %ld)\n", offset, nbytes);
 		return;
 	}
 	if (write)
 		memcpy(dev->data + offset, buffer, nbytes);
-	else
+	else{
 		memcpy(buffer, dev->data + offset, nbytes);
+		//memcpy(buffer, "Raveendra Hurray how are you", 10);
+		//copy_to_user(buffer, "Raveendra Hurray how are you", 10);
+    }
 }
 
 /*
