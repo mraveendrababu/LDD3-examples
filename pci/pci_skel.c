@@ -14,6 +14,7 @@ static unsigned char skel_get_revision(struct pci_dev *dev)
 {
 	u8 revision;
 
+    printk(KERN_INFO "skel_get_revision   :\n");
 	pci_read_config_byte(dev, PCI_REVISION_ID, &revision);
 	return revision;
 }
@@ -23,6 +24,7 @@ static int probe(struct pci_dev *dev, const struct pci_device_id *id)
 	/* Do probing type stuff here.  
 	 * Like calling request_region();
 	 */
+    printk(KERN_INFO "probe   :\n");
 	if(pci_enable_device(dev)) {
 		dev_err(&dev->dev, "can't enable PCI device\n");
 		return -ENODEV;
@@ -37,6 +39,7 @@ static int probe(struct pci_dev *dev, const struct pci_device_id *id)
 
 static void remove(struct pci_dev *dev)
 {
+    printk(KERN_INFO "remove   :\n");
 	/* clean up any allocated resources and stuff here.
 	 * like call release_region();
 	 */
@@ -51,11 +54,13 @@ static struct pci_driver pci_driver = {
 
 static int __init pci_skel_init(void)
 {
+    printk(KERN_INFO "pci_skel_init   :\n");
 	return pci_register_driver(&pci_driver);
 }
 
 static void __exit pci_skel_exit(void)
 {
+    printk(KERN_INFO "pci_skel_exit   :\n");
 	pci_unregister_driver(&pci_driver);
 }
 
