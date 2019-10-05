@@ -26,6 +26,7 @@ module_param(whom, charp, S_IRUGO);
 static int hello_init(void)
 {
 	int i;
+	printk(KERN_INFO "hello_init  \n");
 	for (i = 0; i < howmany; i++)
 		printk(KERN_ALERT "(%d) Hello, %s\n", i, whom);
 	return 0;
@@ -33,6 +34,7 @@ static int hello_init(void)
 
 static void hello_exit(void)
 {
+	printk(KERN_INFO "hello_exit  \n");
 	printk(KERN_ALERT "Goodbye, cruel world\n");
 }
 

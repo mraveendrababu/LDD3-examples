@@ -37,6 +37,7 @@ ssize_t faulty_read(struct file *filp, char __user *buf,
 	int ret;
 	char stack_buf[4];
 
+	printk(KERN_INFO "faulty_read  \n" );
 	/* Let's try a buffer overflow  */
 	for (i = 0; i < 20; i++)
 		*(stack_buf + i) = 0xff;
@@ -52,6 +53,7 @@ ssize_t faulty_write (struct file *filp, const char __user *buf, size_t count,
 		loff_t *pos)
 {
 	/* make a simple fault by dereferencing a NULL pointer */
+	printk(KERN_INFO "faulty_write  \n" );
 	*(int *)0 = 0;
 	return 0;
 }
@@ -69,6 +71,7 @@ int faulty_init(void)
 {
 	int result;
 
+	printk(KERN_INFO "faulty_init  \n" );
 	/*
 	 * Register your major, and accept a dynamic number
 	 */
@@ -87,6 +90,7 @@ int faulty_init(void)
 
 void faulty_cleanup(void)
 {
+	printk(KERN_INFO "faulty_cleanup  \n" );
 	if(faulty_class)
 	{
 		device_destroy(faulty_class, MKDEV(faulty_major, 0));

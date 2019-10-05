@@ -66,11 +66,13 @@ static void __iomem *io_base;
 
 int silly_open(struct inode *inode, struct file *filp)
 {
+	printk(KERN_INFO "silly_open  \n");
 	return 0;
 }
 
 int silly_release(struct inode *inode, struct file *filp)
 {
+	printk(KERN_INFO "silly_release  \n");
 	return 0;
 }
 
@@ -84,6 +86,7 @@ ssize_t silly_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 	unsigned long isa_addr = ISA_BASE + *f_pos;
 	unsigned char *kbuf, *ptr;
 
+	printk(KERN_INFO "silly_read  \n");
 	if (isa_addr + count > ISA_MAX) /* range: 0xA0000-0x100000 */
 		count = ISA_MAX - isa_addr;
 
@@ -166,6 +169,7 @@ ssize_t silly_write(struct file *filp, const char __user *buf, size_t count,
 	unsigned char *kbuf, *ptr;
 	void __iomem *add;
 
+	printk(KERN_INFO "silly_write  \n");
 	/*
 	 * Writing is dangerous.
 	 * Allow root-only, independently of device permissions
@@ -254,6 +258,7 @@ ssize_t silly_write(struct file *filp, const char __user *buf, size_t count,
 
 unsigned int silly_poll(struct file *filp, poll_table *wait)
 {
+	printk(KERN_INFO "silly_poll  \n");
     return POLLIN | POLLRDNORM | POLLOUT | POLLWRNORM;
 }
 
@@ -270,6 +275,7 @@ struct file_operations silly_fops = {
 int silly_init(void)
 {
 	int result = register_chrdev(silly_major, "silly", &silly_fops);
+	printk(KERN_INFO "silly_init  \n");
 	if (result < 0) {
 		printk(KERN_INFO "silly: can't get major number\n");
 		return result;
@@ -292,6 +298,7 @@ int silly_init(void)
 
 void silly_cleanup(void)
 {
+	printk(KERN_INFO "silly_cleanup  \n");
 	iounmap(io_base);
 	if(silly_class)
 	{

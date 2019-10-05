@@ -62,6 +62,7 @@ int jit_fn_show(struct seq_file *m, void *v)
 	wait_queue_head_t wait;
 	long data = (long)m->private;
 
+	printk(KERN_INFO "jit_fn_show  \n" );
 	init_waitqueue_head(&wait);
 	j0 = jiffies;
 	j1 = j0 + delay;
@@ -91,6 +92,7 @@ int jit_fn_show(struct seq_file *m, void *v)
 
 static int jit_fn_open(struct inode *inode, struct file *file)
 {
+	printk(KERN_INFO "jit_fn_open  \n" );
 	return single_open(file, jit_fn_show, PDE_DATA(inode));
 }
 
@@ -111,6 +113,7 @@ int jit_currentime_show(struct seq_file *m, void *v)
 	unsigned long j1;
 	u64 j2;
 
+	printk(KERN_INFO "jit_currenttime_show  \n" );
 	/* get them four */
 	j1 = jiffies;
 	j2 = get_jiffies_64();
@@ -128,6 +131,7 @@ int jit_currentime_show(struct seq_file *m, void *v)
 
 static int jit_currentime_open(struct inode *inode, struct file *file)
 {
+	printk(KERN_INFO "jit_currenttime_open  \n" );
 	return single_open(file, jit_currentime_show, NULL);
 }
 
@@ -165,6 +169,7 @@ void jit_timer_fn(struct timer_list *t)
 			     j, j - data->prevjiffies, in_interrupt() ? 1 : 0,
 			     current->pid, smp_processor_id(), current->comm);
 
+	printk(KERN_INFO "jit_timer_fn  \n" );
 	if (--data->loops) {
 		data->timer.expires += tdelay;
 		data->prevjiffies = j;
@@ -180,6 +185,7 @@ int jit_timer_show(struct seq_file *m, void *v)
 	struct jit_data *data;
 	unsigned long j = jiffies;
 
+	printk(KERN_INFO "jit_timer_show  \n" );
 	data = kmalloc(sizeof(*data), GFP_KERNEL);
 	if (!data)
 		return -ENOMEM;
@@ -212,6 +218,7 @@ int jit_timer_show(struct seq_file *m, void *v)
 
 static int jit_timer_open(struct inode *inode, struct file *file)
 {
+	printk(KERN_INFO "jit_timer_open  \n" );
 	return single_open(file, jit_timer_show, NULL);
 }
 
@@ -226,6 +233,7 @@ void jit_tasklet_fn(unsigned long arg)
 {
 	struct jit_data *data = (struct jit_data *)arg;
 	unsigned long j = jiffies;
+	printk(KERN_INFO "jit_tasklet_fn  \n" );
 	seq_printf(data->m, "%9li  %3li     %i    %6i   %i   %s\n",
 			     j, j - data->prevjiffies, in_interrupt() ? 1 : 0,
 			     current->pid, smp_processor_id(), current->comm);
@@ -248,6 +256,7 @@ int jit_tasklet_show(struct seq_file *m, void *v)
 	unsigned long j = jiffies;
 	long hi = (long)m->private;
 
+	printk(KERN_INFO "jit_tasklet_show  \n" );
 	data = kmalloc(sizeof(*data), GFP_KERNEL);
 	if (!data)
 		return -ENOMEM;
@@ -284,6 +293,7 @@ int jit_tasklet_show(struct seq_file *m, void *v)
 
 static int jit_tasklet_open(struct inode *inode, struct file *file)
 {
+	printk(KERN_INFO "jit_tasklet_open  \n" );
 	return single_open(file, jit_tasklet_show, PDE_DATA(inode));
 }
 
@@ -296,6 +306,7 @@ static const struct file_operations jit_tasklet_fops = {
 
 int __init jit_init(void)
 {
+	printk(KERN_INFO "jit_init  \n" );
 	proc_create_data("currentime", 0, NULL, &jit_currentime_fops, NULL);
 	proc_create_data("jitbusy", 0, NULL, &jit_fn_fops, (void *)JIT_BUSY);
 	proc_create_data("jitsched", 0, NULL, &jit_fn_fops, (void *)JIT_SCHED);
@@ -312,6 +323,7 @@ int __init jit_init(void)
 
 void __exit jit_cleanup(void)
 {
+	printk(KERN_INFO "jit_cleanup  \n" );
 	remove_proc_entry("currentime", NULL);
 	remove_proc_entry("jitbusy", NULL);
 	remove_proc_entry("jitsched", NULL);

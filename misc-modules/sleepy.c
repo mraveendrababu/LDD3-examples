@@ -35,6 +35,7 @@ static int flag = 0;
 
 ssize_t sleepy_read (struct file *filp, char __user *buf, size_t count, loff_t *pos)
 {
+	printk(KERN_INFO " sleepy_read \n");
 	printk(KERN_DEBUG "process %i (%s) going to sleep\n",
 			current->pid, current->comm);
 	wait_event_interruptible(wq, flag != 0);
@@ -46,6 +47,7 @@ ssize_t sleepy_read (struct file *filp, char __user *buf, size_t count, loff_t *
 ssize_t sleepy_write (struct file *filp, const char __user *buf, size_t count,
 		loff_t *pos)
 {
+	printk(KERN_INFO " sleepy_write \n");
 	printk(KERN_DEBUG "process %i (%s) awakening the readers...\n",
 			current->pid, current->comm);
 	flag = 1;
@@ -65,6 +67,7 @@ int sleepy_init(void)
 {
 	int result;
 
+	printk(KERN_INFO " sleepy_init \n");
 	/*
 	 * Register your major, and accept a dynamic number
 	 */
@@ -83,6 +86,7 @@ int sleepy_init(void)
 
 void sleepy_cleanup(void)
 {
+	printk(KERN_INFO " sleepy_cleanup \n");
 	if(sleepy_class)
 	{
 		device_destroy(sleepy_class, MKDEV(sleepy_major, 0));

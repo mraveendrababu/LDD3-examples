@@ -24,6 +24,7 @@ MODULE_LICENSE("Dual BSD/GPL");
 static void *ct_seq_start(struct seq_file *s, loff_t *pos)
 {
 	loff_t *spos = kmalloc(sizeof(loff_t), GFP_KERNEL);
+	printk(KERN_INFO "ct_seq_start  \n" );
 	if (!spos)
 		return NULL;
 	*spos = *pos;
@@ -33,12 +34,14 @@ static void *ct_seq_start(struct seq_file *s, loff_t *pos)
 static void *ct_seq_next(struct seq_file *s, void *v, loff_t *pos)
 {
 	loff_t *spos = (loff_t *) v;
+	printk(KERN_INFO "ct_seq_next  \n" );
 	*pos = ++(*spos);
 	return spos;
 }
 
 static void ct_seq_stop(struct seq_file *s, void *v)
 {
+	printk(KERN_INFO "ct_seq_stop  \n" );
 	kfree(v);
 }
 
@@ -48,6 +51,7 @@ static void ct_seq_stop(struct seq_file *s, void *v)
 static int ct_seq_show(struct seq_file *s, void *v)
 {
 	loff_t *spos = (loff_t *) v;
+	printk(KERN_INFO "ct_seq_show  \n" );
 	seq_printf(s, "%lld\n", *spos);
 	return 0;
 }
@@ -70,6 +74,7 @@ static const struct seq_operations ct_seq_ops = {
 
 static int ct_open(struct inode *inode, struct file *file)
 {
+	printk(KERN_INFO "ct_open  \n" );
 	return seq_open(file, &ct_seq_ops);
 };
 
@@ -94,6 +99,7 @@ static int ct_init(void)
 {
 	struct proc_dir_entry *entry;
 
+	printk(KERN_INFO "ct_init  \n" );
 	entry = proc_create("sequence", 0, NULL, &ct_file_ops);
 	if (!entry)
 		return -ENOMEM;
@@ -102,6 +108,7 @@ static int ct_init(void)
 
 static void ct_exit(void)
 {
+	printk(KERN_INFO "ct_exit  \n" );
 	remove_proc_entry("sequence", NULL);
 }
 
