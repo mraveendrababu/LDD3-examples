@@ -67,6 +67,7 @@ int scullv_read_procmem(struct seq_file *m, void *v)
 	int limit = m->size - 80; /* Don't print more than this */
 	struct scullv_dev *d;
 
+	printk(KERN_INFO "scullv_read_procmem \n");
 	for(i = 0; i < scullv_devs; i++) {
 		d = &scullv_devices[i];
 		if (down_interruptible (&d->sem))
@@ -97,6 +98,7 @@ int scullv_read_procmem(struct seq_file *m, void *v)
 
 static int scullv_proc_open(struct inode *inode, struct file *file)
 {
+	printk(KERN_INFO "scullv_proc_open \n");
 	return single_open(file, scullv_read_procmem, NULL);
 }
 
@@ -118,6 +120,7 @@ int scullv_open (struct inode *inode, struct file *filp)
 {
 	struct scullv_dev *dev; /* device information */
 
+	printk(KERN_INFO "scullv_open \n");
 	/*  Find the device */
 	dev = container_of(inode->i_cdev, struct scullv_dev, cdev);
 
@@ -137,6 +140,7 @@ int scullv_open (struct inode *inode, struct file *filp)
 
 int scullv_release (struct inode *inode, struct file *filp)
 {
+	printk(KERN_INFO "scullv_release \n");
 	return 0;
 }
 
@@ -145,6 +149,7 @@ int scullv_release (struct inode *inode, struct file *filp)
  */
 struct scullv_dev *scullv_follow(struct scullv_dev *dev, int n)
 {
+	printk(KERN_INFO "scullv_follow \n");
 	while (n--) {
 		if (!dev->next) {
 			dev->next = kmalloc(sizeof(struct scullv_dev), GFP_KERNEL);
@@ -171,6 +176,7 @@ ssize_t scullv_read (struct file *filp, char __user *buf, size_t count,
 	int item, s_pos, q_pos, rest;
 	ssize_t retval = 0;
 
+	printk(KERN_INFO "scullv_read \n");
 	if (down_interruptible (&dev->sem))
 		return -ERESTARTSYS;
 	if (*f_pos > dev->size) 
@@ -219,6 +225,7 @@ ssize_t scullv_write (struct file *filp, const char __user *buf, size_t count,
 	int item, s_pos, q_pos, rest;
 	ssize_t retval = -ENOMEM; /* our most likely error */
 
+	printk(KERN_INFO "scullv_write \n");
 	if (down_interruptible (&dev->sem))
 		return -ERESTARTSYS;
 
@@ -270,6 +277,7 @@ long scullv_ioctl (struct file *filp, unsigned int cmd, unsigned long arg)
 
 	int err = 0, ret = 0, tmp;
 
+	printk(KERN_INFO "scullv_ioctl \n");
 	/* don't even decode wrong cmds: better returning  ENOTTY than EFAULT */
 	if (_IOC_TYPE(cmd) != SCULLV_IOC_MAGIC) return -ENOTTY;
 	if (_IOC_NR(cmd) > SCULLV_IOC_MAXNR) return -ENOTTY;
@@ -364,6 +372,7 @@ loff_t scullv_llseek (struct file *filp, loff_t off, int whence)
 	struct scullv_dev *dev = filp->private_data;
 	long newpos;
 
+	printk(KERN_INFO "scullv_llseek \n");
 	switch(whence) {
 	case 0: /* SEEK_SET */
 		newpos = off;
@@ -413,6 +422,7 @@ int scullv_trim(struct scullv_dev *dev)
 	int qset = dev->qset;   /* "dev" is not-null */
 	int i;
 
+	printk(KERN_INFO "scullv_trim \n");
 	if (dev->vmas) /* don't trim: there are active mappings */
 		return -EBUSY;
 
@@ -445,6 +455,7 @@ static void scullv_setup_cdev(struct scullv_dev *dev, int index)
 	dev->cdev.owner = THIS_MODULE;
 	dev->cdev.ops = &scullv_fops;
 	err = cdev_add (&dev->cdev, devno, 1);
+	printk(KERN_INFO "scullv_setup_cdev \n");
 	/* Fail gracefully if need be */
 	if (err)
 		printk(KERN_NOTICE "Error %d adding scull%d", err, index);
@@ -464,6 +475,7 @@ int scullv_init(void)
 	int result, i;
 	dev_t dev = MKDEV(scullv_major, 0);
 	
+	printk(KERN_INFO "scullv_init \n");
 	/*
 	 * Register your major, and accept a dynamic number.
 	 */
@@ -513,6 +525,7 @@ void scullv_cleanup(void)
 {
 	int i;
 
+	printk(KERN_INFO "scullv_cleanup \n");
 #ifdef SCULLV_USE_PROC
 	remove_proc_entry("scullvmem", NULL);
 #endif

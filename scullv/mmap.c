@@ -34,6 +34,7 @@ void scullv_vma_open(struct vm_area_struct *vma)
 {
 	struct scullv_dev *dev = vma->vm_private_data;
 
+	printk(KERN_INFO "scullv_vma_open \n");
 	dev->vmas++;
 }
 
@@ -41,6 +42,7 @@ void scullv_vma_close(struct vm_area_struct *vma)
 {
 	struct scullv_dev *dev = vma->vm_private_data;
 
+	printk(KERN_INFO "scullv_vma_close \n");
 	dev->vmas--;
 }
 
@@ -65,6 +67,7 @@ static int scullv_vma_nopage(struct vm_fault *vmf)
 	void *pageptr = NULL; /* default to "missing" */
 	int retval = VM_FAULT_NOPAGE;
 
+	printk(KERN_INFO "scullv_vma_nopage \n");
 	down(&dev->sem);
 	offset = (unsigned long)(vmf->address - vmf->vma->vm_start) + (vmf->vma->vm_pgoff << PAGE_SHIFT);
 	if (offset >= dev->size) goto out; /* out of range */
@@ -111,6 +114,7 @@ struct vm_operations_struct scullv_vm_ops = {
 int scullv_mmap(struct file *filp, struct vm_area_struct *vma)
 {
 
+	printk(KERN_INFO "scullv_mmap \n");
 	/* don't do anything here: "nopage" will set up page table entries */
 	vma->vm_ops = &scullv_vm_ops;
 	vma->vm_private_data = filp->private_data;
