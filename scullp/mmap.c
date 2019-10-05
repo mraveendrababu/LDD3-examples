@@ -34,6 +34,7 @@ void scullp_vma_open(struct vm_area_struct *vma)
 {
 	struct scullp_dev *dev = vma->vm_private_data;
 
+	printk(KERN_INFO "scullp_vma_open \n");
 	dev->vmas++;
 }
 
@@ -41,6 +42,7 @@ void scullp_vma_close(struct vm_area_struct *vma)
 {
 	struct scullp_dev *dev = vma->vm_private_data;
 
+	printk(KERN_INFO "scullp_vma_close \n");
 	dev->vmas--;
 }
 
@@ -65,6 +67,7 @@ static int scullp_vma_nopage(struct vm_fault *vmf)
 	void *pageptr = NULL; /* default to "missing" */
 	int retval = VM_FAULT_NOPAGE;
 
+	printk(KERN_INFO "scullp_vma_offset \n");
 	down(&dev->sem);
 	offset = (unsigned long)(vmf->address - vmf->vma->vm_start) + (vmf->vma->vm_pgoff << PAGE_SHIFT);
 	if (offset >= dev->size) goto out; /* out of range */
@@ -106,6 +109,7 @@ int scullp_mmap(struct file *filp, struct vm_area_struct *vma)
 {
 	struct inode *inode = filp->f_path.dentry->d_inode;
 
+	printk(KERN_INFO "scullp_mmap \n");
 	/* refuse to map if order is not 0 */
 	if (scullp_devices[iminor(inode)].order)
 		return -ENODEV;

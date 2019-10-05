@@ -66,6 +66,7 @@ int scullp_read_procmem(struct seq_file *m, void *v)
 	int limit = m->size - 80; /* Don't print more than this */
 	struct scullp_dev *d;
 
+	printk(KERN_INFO "scullp_read_procmem \n");
 	for(i = 0; i < scullp_devs; i++) {
 		d = &scullp_devices[i];
 		if (down_interruptible (&d->sem))
@@ -96,6 +97,7 @@ int scullp_read_procmem(struct seq_file *m, void *v)
 
 static int scullp_proc_open(struct inode *inode, struct file *file)
 {
+	printk(KERN_INFO "scullp_proc_open \n");
 	return single_open(file, scullp_read_procmem, NULL);
 }
 
@@ -117,6 +119,7 @@ int scullp_open (struct inode *inode, struct file *filp)
 {
 	struct scullp_dev *dev; /* device information */
 
+	printk(KERN_INFO "scullp_open \n");
 	/*  Find the device */
 	dev = container_of(inode->i_cdev, struct scullp_dev, cdev);
 
@@ -136,6 +139,7 @@ int scullp_open (struct inode *inode, struct file *filp)
 
 int scullp_release (struct inode *inode, struct file *filp)
 {
+	printk(KERN_INFO "scullp_ \n");
 	return 0;
 }
 
@@ -144,6 +148,7 @@ int scullp_release (struct inode *inode, struct file *filp)
  */
 struct scullp_dev *scullp_follow(struct scullp_dev *dev, int n)
 {
+	printk(KERN_INFO "scullp_follow \n");
 	while (n--) {
 		if (!dev->next) {
 			dev->next = kmalloc(sizeof(struct scullp_dev), GFP_KERNEL);
@@ -170,6 +175,7 @@ ssize_t scullp_read (struct file *filp, char __user *buf, size_t count,
 	int item, s_pos, q_pos, rest;
 	ssize_t retval = 0;
 
+	printk(KERN_INFO "scullp_read \n");
 	if (down_interruptible (&dev->sem))
 		return -ERESTARTSYS;
 	if (*f_pos > dev->size) 
@@ -218,6 +224,7 @@ ssize_t scullp_write (struct file *filp, const char __user *buf, size_t count,
 	int item, s_pos, q_pos, rest;
 	ssize_t retval = -ENOMEM; /* our most likely error */
 
+	printk(KERN_INFO "scullp_write \n");
 	if (down_interruptible (&dev->sem))
 		return -ERESTARTSYS;
 
@@ -270,6 +277,7 @@ long scullp_ioctl (struct file *filp, unsigned int cmd, unsigned long arg)
 
 	int err = 0, ret = 0, tmp;
 
+	printk(KERN_INFO "scullp_ioctl \n");
 	/* don't even decode wrong cmds: better returning  ENOTTY than EFAULT */
 	if (_IOC_TYPE(cmd) != SCULLP_IOC_MAGIC) return -ENOTTY;
 	if (_IOC_NR(cmd) > SCULLP_IOC_MAXNR) return -ENOTTY;
@@ -364,6 +372,7 @@ loff_t scullp_llseek (struct file *filp, loff_t off, int whence)
 	struct scullp_dev *dev = filp->private_data;
 	long newpos;
 
+	printk(KERN_INFO "scullp_llseek \n");
 	switch(whence) {
 	case 0: /* SEEK_SET */
 		newpos = off;
@@ -413,6 +422,7 @@ int scullp_trim(struct scullp_dev *dev)
 	int qset = dev->qset;   /* "dev" is not-null */
 	int i;
 
+	printk(KERN_INFO "scullp_trim \n");
 	if (dev->vmas) /* don't trim: there are active mappings */
 		return -EBUSY;
 
@@ -442,6 +452,7 @@ static void scullp_setup_cdev(struct scullp_dev *dev, int index)
 {
 	int err, devno = MKDEV(scullp_major, index);
     
+	printk(KERN_INFO "scullp_setup_cdev \n");
 	cdev_init(&dev->cdev, &scullp_fops);
 	dev->cdev.owner = THIS_MODULE;
 	dev->cdev.ops = &scullp_fops;
@@ -465,6 +476,7 @@ int scullp_init(void)
 	int result, i;
 	dev_t dev = MKDEV(scullp_major, 0);
 	
+	printk(KERN_INFO "scullp_init \n");
 	/*
 	 * Register your major, and accept a dynamic number.
 	 */
@@ -518,6 +530,7 @@ void scullp_cleanup(void)
 	remove_proc_entry("scullpmem", NULL);
 #endif
 
+	printk(KERN_INFO "scullp_cleanup \n");
 	for (i = 0; i < scullp_devs; i++) {
 		if(scullp_class)
 			device_destroy(scullp_class, MKDEV(scullp_major, i));
