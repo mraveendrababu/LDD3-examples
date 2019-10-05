@@ -43,6 +43,7 @@ static struct class *simple_class = NULL;
  */
 static int simple_release(struct inode *inode, struct file *filp)
 {
+	printk(KERN_INFO "Simple_release \n");
 	return 0;
 }
 
@@ -54,12 +55,14 @@ static int simple_release(struct inode *inode, struct file *filp)
 
 void simple_vma_open(struct vm_area_struct *vma)
 {
+	printk(KERN_INFO "Simple_vma_open \n");
 	printk(KERN_NOTICE "Simple VMA open, virt %lx, phys %lx\n",
 			vma->vm_start, vma->vm_pgoff << PAGE_SHIFT);
 }
 
 void simple_vma_close(struct vm_area_struct *vma)
 {
+	printk(KERN_INFO "Simple_vma_close \n");
 	printk(KERN_NOTICE "Simple VMA close.\n");
 }
 
@@ -76,6 +79,7 @@ static struct vm_operations_struct simple_remap_vm_ops = {
 
 static int simple_remap_mmap(struct file *filp, struct vm_area_struct *vma)
 {
+	printk(KERN_INFO "Simple_remap_mmap \n");
 	if (remap_pfn_range(vma, vma->vm_start, vma->vm_pgoff,
 			    vma->vm_end - vma->vm_start,
 			    vma->vm_page_prot))
@@ -94,6 +98,7 @@ static struct vm_operations_struct simple_nopage_vm_ops = {
 
 static int simple_nopage_mmap(struct file *filp, struct vm_area_struct *vma)
 {
+	printk(KERN_INFO "Simple_nopage_mmap \n");
 	vma->vm_ops = &simple_nopage_vm_ops;
 	simple_vma_open(vma);
 	return 0;
@@ -108,6 +113,7 @@ static void simple_setup_cdev(struct cdev *dev, int minor,
 {
 	int err, devno = MKDEV(simple_major, minor);
     
+	printk(KERN_INFO "Simple_setup_cdev \n");
 	cdev_init(dev, fops);
 	dev->owner = THIS_MODULE;
 	dev->ops = fops;
@@ -157,6 +163,7 @@ static int simple_init(void)
 	int result;
 	dev_t dev = MKDEV(simple_major, 0);
 
+	printk(KERN_INFO "Simple_init \n");
 	/* Figure out our device number. */
 	if (simple_major)
 		result = register_chrdev_region(dev, 2, "simple");
@@ -181,6 +188,7 @@ static int simple_init(void)
 
 static void simple_cleanup(void)
 {
+	printk(KERN_INFO "Simple_cleanup \n");
 	if(simple_class)
 	{
 		device_destroy(simple_class, MKDEV(simple_major, 0));

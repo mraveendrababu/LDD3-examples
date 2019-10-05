@@ -88,6 +88,7 @@ static struct timeval shortp_tv;  /* When the interrupt happened. */
 static inline void shortp_incr_bp(volatile unsigned long *index, int delta)
 {
 	unsigned long new = *index + delta;
+	printk(KERN_INFO "shortp_incr_bp \n");
 	barrier ();  /* Don't optimize these two together */
 	*index = (new >= (shortp_in_buffer + PAGE_SIZE)) ? shortp_in_buffer : new;
 }
@@ -118,6 +119,7 @@ static struct workqueue_struct *shortp_workqueue;
  */
 static inline int shortp_out_space(void)
 {
+	printk(KERN_INFO "shortp_out_space \n");
 	if (shortp_out_head >= shortp_out_tail) {
 		int space = PAGE_SIZE - (shortp_out_head - shortp_out_buffer);
 		return (shortp_out_tail == shortp_out_buffer) ? space - 1 : space;
@@ -128,6 +130,7 @@ static inline int shortp_out_space(void)
 static inline void shortp_incr_out_bp(volatile unsigned char **bp, int incr)
 {
 	unsigned char *new = (unsigned char *) *bp + incr;
+	printk(KERN_INFO "shortp_incr_out_bp \n");
 	if (new >= (shortp_out_buffer + PAGE_SIZE))
 		new -= PAGE_SIZE;
 	*bp = new;
@@ -155,12 +158,14 @@ static struct timer_list shortp_timer;
  */
 static int shortp_open(struct inode *inode, struct file *filp)
 {
+	printk(KERN_INFO "shortp_open \n");
 	return 0;
 }
 
 
 static int shortp_release(struct inode *inode, struct file *filp)
 {
+	printk(KERN_INFO "shortp_release \n");
 	/* Wait for any pending output to complete */
 	wait_event_interruptible(shortp_empty_queue, shortp_output_active==0);
 
@@ -171,6 +176,7 @@ static int shortp_release(struct inode *inode, struct file *filp)
 
 static unsigned int shortp_poll(struct file *filp, poll_table *wait)
 {
+	printk(KERN_INFO "shortp_poll \n");
     return POLLIN | POLLRDNORM | POLLOUT | POLLWRNORM;
 }
 
@@ -185,6 +191,7 @@ static ssize_t shortp_read(struct file *filp, char __user *buf, size_t count, lo
 	int count0;
 	DEFINE_WAIT(wait);
 
+	printk(KERN_INFO "shortp_read \n");
 	while (shortp_in_head == shortp_in_tail) {
 		prepare_to_wait(&shortp_in_queue, &wait, TASK_INTERRUPTIBLE);
 		if (shortp_in_head == shortp_in_tail)
@@ -213,6 +220,7 @@ static ssize_t shortp_read(struct file *filp, char __user *buf, size_t count, lo
  */
 static void shortp_wait(void)
 {
+	printk(KERN_INFO "shortp_wait \n");
 	if ((inb(shortp_base + SP_STATUS) & SP_SR_BUSY) == 0) {
 		printk(KERN_INFO "shortprint: waiting for printer busy\n");
 		printk(KERN_INFO "Status is 0x%x\n", inb(shortp_base + SP_STATUS));
@@ -232,6 +240,7 @@ static void shortp_do_write(void)
 {
 	unsigned char cr = inb(shortp_base + SP_CONTROL);
 
+	printk(KERN_INFO "shortp_do_write \n");
 	/* Something happened; reset the timer */
 	mod_timer(&shortp_timer, jiffies + TIMEOUT);
 
@@ -252,6 +261,7 @@ static void shortp_do_write(void)
  */
 static void shortp_start_output(void)
 {
+	printk(KERN_INFO "shortp_start_output \n");
 	if (shortp_output_active) /* Should never happen */
 		return;
 
@@ -273,6 +283,7 @@ static ssize_t shortp_write(struct file *filp, const char __user *buf, size_t co
 {
 	int space, written = 0;
 	unsigned long flags;
+	printk(KERN_INFO "shortp_write \n");
 	/*
 	 * Take and hold the semaphore for the entire duration of the operation.  The
 	 * consumer side ignores it, and it will keep other data from interleaving
@@ -327,6 +338,7 @@ static void shortp_do_work(struct work_struct *work)
 	int written;
 	unsigned long flags;
 
+	printk(KERN_INFO "shortp_do_work \n");
 	/* Wait until the device is ready */
 	shortp_wait();
 	
@@ -362,6 +374,7 @@ static void shortp_do_work(struct work_struct *work)
  */
 static irqreturn_t shortp_interrupt(int irq, void *dev_id)
 {
+	printk(KERN_INFO "shortp_interrupt \n");
 	if (! shortp_output_active) 
 		return IRQ_NONE;
 
@@ -381,6 +394,7 @@ static void shortp_timeout(struct timer_list *unused)
 	unsigned long flags;
 	unsigned char status;
    
+	printk(KERN_INFO "shortp_timeout \n");
 	if (! shortp_output_active)
 		return;
 	spin_lock_irqsave(&shortp_out_lock, flags);
@@ -432,6 +446,7 @@ static int shortp_init(void)
 	shortp_irq = irq;
 	shortp_delay = delay;
 
+	printk(KERN_INFO "shortp_init \n");
 	/* Get our needed resources. */
 	if (! request_region(shortp_base, SHORTP_NR_PORTS, "shortprint")) {
 		printk(KERN_INFO "shortprint: can't get I/O port address 0x%lx\n",
@@ -492,6 +507,7 @@ static int shortp_init(void)
 
 static void shortp_cleanup(void)
 {
+	printk(KERN_INFO "shortp_cleanup \n");
 	/* Return the IRQ if we have one */
 	if (shortp_irq >= 0) {
 		outb(0x0, shortp_base + SP_CONTROL);   /* disable the interrupt */

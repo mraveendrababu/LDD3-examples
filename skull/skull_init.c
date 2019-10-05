@@ -50,6 +50,7 @@ EXPORT_SYMBOL (skull_variable);
 /* perform hardware autodetection */
 int skull_probe_hw(unsigned int port, unsigned int range)
 {
+   printk(KERN_INFO "skull_probe_hw  \n");
    /* do smart probing here */
    return -1; /* not found  :-) */
 }
@@ -58,6 +59,7 @@ int skull_probe_hw(unsigned int port, unsigned int range)
 int skull_init_board(unsigned int port)
 {
   /* do smart initalization here */
+  printk(KERN_INFO "skull_init_board  \n");
   return 0; /* done :-) */
 }
 
@@ -66,6 +68,7 @@ static int skull_detect(unsigned int port, unsigned int range)
 {
     int err;
 
+  printk(KERN_INFO "skull_detect  \n");
     if ((err = check_region(port,range)) < 0) return err; /* busy */
     if (skull_probe_hw(port,range) != 0) return -ENODEV;  /* not found */
     request_region(port,range,"skull");                   /* "Can't fail" */
@@ -95,6 +98,7 @@ static int skull_find_hw(void) /* returns the # of devices */
                              : SKULL_PORT_FLOOR; 
     int result = 0;
 
+  printk(KERN_INFO "skull_find_hw  \n");
     /* loop one time if value assigned, try them all if autodetecting */
     do {
 	if (skull_detect(base, SKULL_PORT_RANGE) == 0) {
@@ -122,6 +126,7 @@ int skull_init(void)
     unsigned long add, i;
     void *base;
     
+  printk(KERN_INFO "skull_init  \n");
     /* Use ioremap to get a handle on our region */
     base = ioremap(ISA_REGION_BEGIN, ISA_REGION_END - ISA_REGION_BEGIN);
     base -= ISA_REGION_BEGIN;  /* Do the offset once */
