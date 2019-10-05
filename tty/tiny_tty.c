@@ -71,6 +71,7 @@ static void tiny_timer(struct timer_list *t)
 	char data[1] = {TINY_DATA_CHARACTER};
 	int data_size = 1;
 
+    printk(KERN_INFO "tiny_timer   :\n");
 	if (!tiny)
 		return;
 
@@ -96,6 +97,7 @@ static int tiny_open(struct tty_struct *tty, struct file *file)
 	struct tiny_serial *tiny;
 	int index;
 
+    printk(KERN_INFO "tiny_open   :\n");
 	/* initialize the pointer in case something fails */
 	tty->driver_data = NULL;
 
@@ -139,6 +141,7 @@ static void do_close(struct tiny_serial *tiny)
 {
 	down(&tiny->sem);
 
+    printk(KERN_INFO "do_close   :\n");
 	if (!tiny->open_count) {
 		/* port was never opened */
 		goto exit;
@@ -160,6 +163,7 @@ static void tiny_close(struct tty_struct *tty, struct file *file)
 {
 	struct tiny_serial *tiny = tty->driver_data;
 
+    printk(KERN_INFO "tiny_close   :\n");
 	if (tiny)
 		do_close(tiny);
 }
@@ -171,6 +175,7 @@ static int tiny_write(struct tty_struct *tty,
 	int i;
 	int retval = -EINVAL;
 
+    printk(KERN_INFO "tiny_write   :\n");
 	if (!tiny)
 		return -ENODEV;
 
@@ -198,6 +203,7 @@ static int tiny_write_room(struct tty_struct *tty)
 	struct tiny_serial *tiny = tty->driver_data;
 	int room = -EINVAL;
 
+    printk(KERN_INFO "tiny_write_room   :\n");
 	if (!tiny)
 		return -ENODEV;
 
@@ -224,6 +230,7 @@ static void tiny_set_termios(struct tty_struct *tty, struct ktermios *old_termio
 
 	cflag = tty->termios.c_cflag;
 
+    printk(KERN_INFO "tiny_set_termios   :\n");
 	/* check that they really want us to change something */
 	if (old_termios) {
 		if ((cflag == old_termios->c_cflag) &&
@@ -315,6 +322,7 @@ static int tiny_tiocmget(struct tty_struct *tty)
 	unsigned int msr = tiny->msr;
 	unsigned int mcr = tiny->mcr;
 
+    printk(KERN_INFO "tiny_tiocmget   :\n");
 	result = ((mcr & MCR_DTR)  ? TIOCM_DTR  : 0) |	/* DTR is set */
 		((mcr & MCR_RTS)  ? TIOCM_RTS  : 0) |	/* RTS is set */
 		((mcr & MCR_LOOP) ? TIOCM_LOOP : 0) |	/* LOOP is set */
@@ -332,6 +340,7 @@ static int tiny_tiocmset(struct tty_struct *tty, unsigned int set,
 	struct tiny_serial *tiny = tty->driver_data;
 	unsigned int mcr = tiny->mcr;
 
+    printk(KERN_INFO "tiny_tiocmset   :\n");
 	if (set & TIOCM_RTS)
 		mcr |= MCR_RTS;
 	if (set & TIOCM_DTR)
@@ -352,6 +361,7 @@ static int tiny_proc_show(struct seq_file *m, void *v)
 	struct tiny_serial *tiny;
 	int i;
 
+    printk(KERN_INFO "tiny_proc_show   :\n");
 	seq_printf(m, "tinyserinfo:1.0 driver:%s\n", DRIVER_VERSION);
 	for (i = 0; i < TINY_TTY_MINORS; ++i) {
 		tiny = tiny_table[i];
@@ -370,6 +380,7 @@ static int tiny_ioctl(struct tty_struct *tty, unsigned int cmd,
 {
 	struct tiny_serial *tiny = tty->driver_data;
 
+    printk(KERN_INFO "tiny_ioctl   :\n");
 	if (cmd == TIOCGSERIAL) {
 		struct serial_struct tmp;
 
@@ -405,6 +416,7 @@ static int tiny_ioctl(struct tty_struct *tty, unsigned int cmd,
 {
 	struct tiny_serial *tiny = tty->driver_data;
 
+    printk(KERN_INFO "tiny_ioctl   :\n");
 	if (cmd == TIOCMIWAIT) {
 		DECLARE_WAITQUEUE(wait, current);
 		struct async_icount cnow;
@@ -445,6 +457,7 @@ static int tiny_ioctl(struct tty_struct *tty, unsigned int cmd,
 {
 	struct tiny_serial *tiny = tty->driver_data;
 
+    printk(KERN_INFO "tiny_ioctl   :\n");
 	if (cmd == TIOCGICOUNT) {
 		struct async_icount cnow = tiny->icount;
 		struct serial_icounter_struct icount;
@@ -473,6 +486,7 @@ static int tiny_ioctl(struct tty_struct *tty, unsigned int cmd,
 static int tiny_ioctl(struct tty_struct *tty, unsigned int cmd,
 		      unsigned long arg)
 {
+    printk(KERN_INFO "tiny_ioctl   :\n");
 	switch (cmd) {
 	case TIOCGSERIAL:
 		return tiny_ioctl_tiocgserial(tty, cmd, arg);
@@ -487,6 +501,7 @@ static int tiny_ioctl(struct tty_struct *tty, unsigned int cmd,
 
 static int tiny_proc_open(struct inode *inode, struct file *file)
 {
+    printk(KERN_INFO "tiny_proc_open   :\n");
 	return single_open(file, tiny_proc_show, NULL);
 }
 
@@ -523,6 +538,7 @@ static int __init tiny_init(void)
 	if (!tiny_tty_driver)
 		return -ENOMEM;
 
+    printk(KERN_INFO "tiny_init   :\n");
 	/* initialize the tty driver */
 	tiny_tty_driver->owner = THIS_MODULE;
 	tiny_tty_driver->driver_name = "tiny_tty";
@@ -559,6 +575,7 @@ static void __exit tiny_exit(void)
 	struct tiny_serial *tiny;
 	int i;
 
+    printk(KERN_INFO "tiny_exit   :\n");
 	for (i = 0; i < TINY_TTY_MINORS; ++i)
 		tty_unregister_device(tiny_tty_driver, i);
 	tty_unregister_driver(tiny_tty_driver);

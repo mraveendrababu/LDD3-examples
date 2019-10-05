@@ -46,14 +46,17 @@ static struct timer_list *timer;
 
 static void tiny_stop_tx(struct uart_port *port)
 {
+		printk(KERN_INFO " tiny_stop_rx  \n");
 }
 
 static void tiny_stop_rx(struct uart_port *port)
 {
+		printk(KERN_INFO " tiny_stop_rx  \n");
 }
 
 static void tiny_enable_ms(struct uart_port *port)
 {
+		printk(KERN_INFO " tiny_enable_ms  \n");
 }
 
 static void tiny_tx_chars(struct uart_port *port)
@@ -61,6 +64,7 @@ static void tiny_tx_chars(struct uart_port *port)
 	struct circ_buf *xmit = &port->state->xmit;
 	int count;
 
+		printk(KERN_INFO " tiny_tx_chars  \n");
 	if (port->x_char) {
 		pr_debug("wrote %2x", port->x_char);
 		port->icount.tx++;
@@ -90,6 +94,7 @@ static void tiny_tx_chars(struct uart_port *port)
 
 static void tiny_start_tx(struct uart_port *port)
 {
+		printk(KERN_INFO " tiny_start_tx  \n");
 }
 
 static void tiny_timer(unsigned long data)
@@ -99,6 +104,7 @@ static void tiny_timer(unsigned long data)
 	struct tty_port *tty_port;
 
 
+		printk(KERN_INFO " tiny_timer  \n");
 	port = (struct uart_port *)data;
 	if (!port)
 		return;
@@ -126,26 +132,31 @@ static void tiny_timer(unsigned long data)
 
 static unsigned int tiny_tx_empty(struct uart_port *port)
 {
+		printk(KERN_INFO " tiny_tx_empty  \n");
 	return 0;
 }
 
 static unsigned int tiny_get_mctrl(struct uart_port *port)
 {
+		printk(KERN_INFO " tiny_get_mctrl  \n");
 	return 0;
 }
 
 static void tiny_set_mctrl(struct uart_port *port, unsigned int mctrl)
 {
+		printk(KERN_INFO " tiny_set_mctrl  \n");
 }
 
 static void tiny_break_ctl(struct uart_port *port, int break_state)
 {
+		printk(KERN_INFO " tiny_break_ctl  \n");
 }
 
 static void tiny_set_termios(struct uart_port *port,
 			     struct ktermios *new, struct ktermios *old)
 {
 	int baud, quot, cflag = new->c_cflag;
+		printk(KERN_INFO " tiny_set_termios  \n");
 	/* get the byte size */
 	switch (cflag & CSIZE) {
 	case CS5:
@@ -196,6 +207,7 @@ static int tiny_startup(struct uart_port *port)
 	/* this is the first time this port is opened */
 	/* do any hardware initialization needed here */
 
+		printk(KERN_INFO " tiny_startup  \n");
 	/* create our timer and submit it */
 	if (!timer) {
 		timer = kmalloc(sizeof(*timer), GFP_KERNEL);
@@ -219,31 +231,37 @@ static void tiny_shutdown(struct uart_port *port)
 	/* The port is being closed by the last user. */
 	/* Do any hardware specific stuff here */
 
+		printk(KERN_INFO " tiny_shutdown  \n");
 	/* shut down our timer */
 	del_timer(timer);
 }
 
 static const char *tiny_type(struct uart_port *port)
 {
+		printk(KERN_INFO " tiny_type  \n");
 	return "tinytty";
 }
 
 static void tiny_release_port(struct uart_port *port)
 {
 
+		printk(KERN_INFO " tiny_release_port  \n");
 }
 
 static int tiny_request_port(struct uart_port *port)
 {
+		printk(KERN_INFO " tiny_request_port  \n");
 	return 0;
 }
 
 static void tiny_config_port(struct uart_port *port, int flags)
 {
+		printk(KERN_INFO " tiny_config_port  \n");
 }
 
 static int tiny_verify_port(struct uart_port *port, struct serial_struct *ser)
 {
+		printk(KERN_INFO " tiny_verify_port  \n");
 	return 0;
 }
 
@@ -281,6 +299,7 @@ static struct uart_driver tiny_reg = {
 
 static void tiny_exit(void)
 {
+		printk(KERN_INFO " tiny_exit  \n");
 	uart_remove_one_port(&tiny_reg, &tiny_port);
 	uart_unregister_driver(&tiny_reg);
 }
@@ -289,6 +308,7 @@ static int __init tiny_init(void)
 {
 	int result;
 
+		printk(KERN_INFO " tiny_init  \n");
 	printk(KERN_INFO "Tiny serial driver loaded\n");
 
 	result = uart_register_driver(&tiny_reg);
