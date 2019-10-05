@@ -56,6 +56,7 @@ static void skel_delete(struct kref *kref)
 {	
 	struct usb_skel *dev = to_skel_dev(kref);
 
+    printk(KERN_INFO "skel_delete   :\n");
 	usb_put_dev(dev->udev);
 	kfree (dev->bulk_in_buffer);
 	kfree (dev);
@@ -70,6 +71,7 @@ static int skel_open(struct inode *inode, struct file *file)
 
 	subminor = iminor(inode);
 
+    printk(KERN_INFO "skel_open   :\n");
 	interface = usb_find_interface(&skel_driver, subminor);
 	if (!interface) {
 		pr_err("%s - error, can't find device for minor %d",
@@ -98,6 +100,7 @@ static int skel_release(struct inode *inode, struct file *file)
 {
 	struct usb_skel *dev;
 
+    printk(KERN_INFO "skel_release   :\n");
 	dev = (struct usb_skel *)file->private_data;
 	if (dev == NULL)
 		return -ENODEV;
@@ -112,6 +115,7 @@ static ssize_t skel_read(struct file *file, char __user *buffer, size_t count, l
 	struct usb_skel *dev;
 	int retval = 0;
 
+    printk(KERN_INFO "skel_read   :\n");
 	dev = (struct usb_skel *)file->private_data;
 	
 	/* do a blocking bulk read to get data from the device */
@@ -136,6 +140,7 @@ static void skel_write_bulk_callback(struct urb *urb)
 {
 	struct usb_skel *dev = urb->context;
 
+    printk(KERN_INFO "skel_write_bulk_callback   :\n");
 	/* sync/async unlink faults aren't errors */
 	if (urb->status && 
 	    !(urb->status == -ENOENT || 
@@ -158,6 +163,7 @@ static ssize_t skel_write(struct file *file, const char __user *user_buffer, siz
 	struct urb *urb = NULL;
 	char *buf = NULL;
 
+    printk(KERN_INFO "skel_write   :\n");
 	dev = (struct usb_skel *)file->private_data;
 
 	/* verify that we actually have some data to write */
@@ -234,6 +240,7 @@ static int skel_probe(struct usb_interface *interface, const struct usb_device_i
 	int i;
 	int retval = -ENOMEM;
 
+    printk(KERN_INFO "skel_probe   :\n");
 	/* allocate memory for our device state and initialize it */
 	dev = kzalloc(sizeof(struct usb_skel), GFP_KERNEL);
 	if (!dev) {
@@ -306,6 +313,7 @@ static void skel_disconnect(struct usb_interface *interface)
 	struct usb_skel *dev;
 	int minor = interface->minor;
 
+    printk(KERN_INFO "skel_disconnect   :\n");
 	dev = usb_get_intfdata(interface);
 	usb_set_intfdata(interface, NULL);
 
@@ -329,6 +337,7 @@ static int __init usb_skel_init(void)
 {
 	int result;
 
+    printk(KERN_INFO "usb_skel_init   :\n");
 	/* register this driver with the USB subsystem */
 	result = usb_register(&skel_driver);
 	if (result)
@@ -339,6 +348,7 @@ static int __init usb_skel_init(void)
 
 static void __exit usb_skel_exit(void)
 {
+    printk(KERN_INFO "usb_skel_exit   :\n");
 	/* deregister this driver with the USB subsystem */
 	usb_deregister(&skel_driver);
 }

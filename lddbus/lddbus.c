@@ -32,6 +32,7 @@ static char *Version = "$Revision: 1.9 $";
  */
 static int ldd_uevent(struct device *dev, struct kobj_uevent_env *env)
 {
+	printk(KERN_INFO "ldd_uevent  \n");
 	if (add_uevent_var(env, "LDDBUS_VERSION=%s", Version))
 		return -ENOMEM;
 
@@ -43,6 +44,7 @@ static int ldd_uevent(struct device *dev, struct kobj_uevent_env *env)
  */
 static int ldd_match(struct device *dev, struct device_driver *driver)
 {
+	printk(KERN_INFO "ldd_match  \n");
 	return !strncmp(dev_name(dev), driver->name, strlen(driver->name));
 }
 
@@ -52,6 +54,7 @@ static int ldd_match(struct device *dev, struct device_driver *driver)
  */
 static void ldd_bus_release(struct device *dev)
 {
+	printk(KERN_DEBUG "ldd_  \n");
 	printk(KERN_DEBUG "lddbus release\n");
 }
 	
@@ -75,6 +78,7 @@ struct bus_type ldd_bus_type = {
  */
 static ssize_t show_bus_version(struct bus_type *bus, char *buf)
 {
+	printk(KERN_INFO "show_bus_version  \n");
 	return snprintf(buf, PAGE_SIZE, "%s\n", Version);
 }
 
@@ -92,10 +96,13 @@ static BUS_ATTR(version, S_IRUGO, show_bus_version, NULL);
  * release function.
  */
 static void ldd_dev_release(struct device *dev)
-{ }
+{ 
+	printk(KERN_INFO "ldd_dev_release  \n");
+}
 
 int register_ldd_device(struct ldd_device *ldddev)
 {
+	printk(KERN_INFO "register_ldd_device  \n");
 	ldddev->dev.bus = &ldd_bus_type;
 	ldddev->dev.parent = &ldd_bus;
 	ldddev->dev.release = ldd_dev_release;
@@ -106,6 +113,7 @@ EXPORT_SYMBOL(register_ldd_device);
 
 void unregister_ldd_device(struct ldd_device *ldddev)
 {
+	printk(KERN_INFO "unregister_ldd_device  \n");
 	device_unregister(&ldddev->dev);
 }
 EXPORT_SYMBOL(unregister_ldd_device);
@@ -119,6 +127,7 @@ static ssize_t show_version(struct device_driver *driver, char *buf)
 {
 	struct ldd_driver *ldriver = to_ldd_driver(driver);
 
+	printk(KERN_INFO "show_version  \n");
 	sprintf(buf, "%s\n", ldriver->version);
 	return strlen(buf);
 }
@@ -128,6 +137,7 @@ int register_ldd_driver(struct ldd_driver *driver)
 {
 	int ret;
 	
+	printk(KERN_INFO "register_ldd_driver  \n");
 	driver->driver.bus = &ldd_bus_type;
 	ret = driver_register(&driver->driver);
 	if (ret)
@@ -141,6 +151,7 @@ int register_ldd_driver(struct ldd_driver *driver)
 
 void unregister_ldd_driver(struct ldd_driver *driver)
 {
+	printk(KERN_INFO "unregister_ldd_driver  \n");
 	driver_unregister(&driver->driver);
 }
 EXPORT_SYMBOL(register_ldd_driver);
@@ -152,6 +163,7 @@ static int __init ldd_bus_init(void)
 {
 	int ret;
 
+	printk(KERN_INFO "ldd_bus_init  \n");
 	ret = bus_register(&ldd_bus_type);
 	if (ret)
 		return ret;
@@ -165,6 +177,7 @@ static int __init ldd_bus_init(void)
 
 static void ldd_bus_exit(void)
 {
+	printk(KERN_INFO "ldd_bus_exit  \n");
 	device_unregister(&ldd_bus);
 	bus_unregister(&ldd_bus_type);
 }

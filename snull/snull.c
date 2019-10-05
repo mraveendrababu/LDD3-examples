@@ -102,6 +102,7 @@ void snull_setup_pool(struct net_device *dev)
 	int i;
 	struct snull_packet *pkt;
 
+	printk (KERN_INFO "snull_setup_pool  \n");
 	priv->ppool = NULL;
 	for (i = 0; i < pool_size; i++) {
 		pkt = kmalloc (sizeof (struct snull_packet), GFP_KERNEL);
@@ -120,6 +121,7 @@ void snull_teardown_pool(struct net_device *dev)
 	struct snull_priv *priv = netdev_priv(dev);
 	struct snull_packet *pkt;
     
+	printk (KERN_INFO "snull_teardown_pool  \n");
 	while ((pkt = priv->ppool)) {
 		priv->ppool = pkt->next;
 		kfree (pkt);
@@ -136,6 +138,7 @@ struct snull_packet *snull_get_tx_buffer(struct net_device *dev)
 	unsigned long flags;
 	struct snull_packet *pkt;
     
+	printk (KERN_INFO "snull_get_tx_buffer  \n");
 	spin_lock_irqsave(&priv->lock, flags);
 	pkt = priv->ppool;
 	priv->ppool = pkt->next;
@@ -153,6 +156,7 @@ void snull_release_buffer(struct snull_packet *pkt)
 	unsigned long flags;
 	struct snull_priv *priv = netdev_priv(pkt->dev);
 	
+	printk (KERN_INFO "snull_release_buffer  \n");
 	spin_lock_irqsave(&priv->lock, flags);
 	pkt->next = priv->ppool;
 	priv->ppool = pkt;
@@ -166,6 +170,7 @@ void snull_enqueue_buf(struct net_device *dev, struct snull_packet *pkt)
 	unsigned long flags;
 	struct snull_priv *priv = netdev_priv(dev);
 
+	printk (KERN_INFO "snull_enqueue_buf  \n");
 	spin_lock_irqsave(&priv->lock, flags);
 	pkt->next = priv->rx_queue;  /* FIXME - misorders packets */
 	priv->rx_queue = pkt;
@@ -178,6 +183,7 @@ struct snull_packet *snull_dequeue_buf(struct net_device *dev)
 	struct snull_packet *pkt;
 	unsigned long flags;
 
+	printk (KERN_INFO "snull_dequeue_buf  \n");
 	spin_lock_irqsave(&priv->lock, flags);
 	pkt = priv->rx_queue;
 	if (pkt != NULL)
@@ -192,6 +198,7 @@ struct snull_packet *snull_dequeue_buf(struct net_device *dev)
 static void snull_rx_ints(struct net_device *dev, int enable)
 {
 	struct snull_priv *priv = netdev_priv(dev);
+	printk (KERN_INFO "snull_rx_ints  \n");
 	priv->rx_int_enabled = enable;
 }
 
@@ -204,6 +211,7 @@ int snull_open(struct net_device *dev)
 {
 	/* request_region(), request_irq(), ....  (like fops->open) */
 
+	printk (KERN_INFO "snull_open  \n");
 	/* 
 	 * Assign the hardware address of the board: use "\0SNULx", where
 	 * x is 0 or 1. The first byte is '\0' to avoid being a multicast
@@ -220,6 +228,7 @@ int snull_release(struct net_device *dev)
 {
     /* release ports, irq and such -- like fops->close */
 
+	printk (KERN_INFO "snull_release  \n");
 	netif_stop_queue(dev); /* can't transmit any more */
 	return 0;
 }
@@ -229,6 +238,7 @@ int snull_release(struct net_device *dev)
  */
 int snull_config(struct net_device *dev, struct ifmap *map)
 {
+	printk (KERN_INFO "snull_config  \n");
 	if (dev->flags & IFF_UP) /* can't act on a running interface */
 		return -EBUSY;
 
@@ -256,6 +266,7 @@ void snull_rx(struct net_device *dev, struct snull_packet *pkt)
 	struct sk_buff *skb;
 	struct snull_priv *priv = netdev_priv(dev);
 
+	printk (KERN_INFO "snull_rx  \n");
 	/*
 	 * The packet has been retrieved from the transmission
 	 * medium. Build an skb around it, so upper layers can handle it
@@ -293,6 +304,7 @@ static int snull_poll(struct napi_struct *napi, int budget)
 	struct net_device *dev = priv->dev;
 	struct snull_packet *pkt;
     
+	printk (KERN_INFO "snull_poll  \n");
 	while (npackets < budget && priv->rx_queue) {
 		pkt = snull_dequeue_buf(dev);
 		skb = dev_alloc_skb(pkt->datalen + 2);
@@ -335,6 +347,7 @@ static void snull_regular_interrupt(int irq, void *dev_id, struct pt_regs *regs)
 	int statusword;
 	struct snull_priv *priv;
 	struct snull_packet *pkt = NULL;
+	printk (KERN_INFO "snull_regular_interrupt  \n");
 	/*
 	 * As usual, check the "device" pointer to be sure it is
 	 * really interrupting.
@@ -383,6 +396,7 @@ static void snull_napi_interrupt(int irq, void *dev_id, struct pt_regs *regs)
 	int statusword;
 	struct snull_priv *priv;
 
+	printk (KERN_INFO "snull_napi_interrupt  \n");
 	/*
 	 * As usual, check the "device" pointer for shared handlers.
 	 * Then assign "struct device *dev"
@@ -436,6 +450,7 @@ static void snull_hw_tx(char *buf, int len, struct net_device *dev)
 	u32 *saddr, *daddr;
 	struct snull_packet *tx_buffer;
     
+	printk (KERN_INFO "snull_hw_tx  \n");
 	/* I am paranoid. Ain't I? */
 	if (len < sizeof(struct ethhdr) + sizeof(struct iphdr)) {
 		printk("snull: Hmm... packet too short (%i octets)\n",
@@ -513,6 +528,7 @@ int snull_tx(struct sk_buff *skb, struct net_device *dev)
 	char *data, shortpkt[ETH_ZLEN];
 	struct snull_priv *priv = netdev_priv(dev);
 	
+	printk (KERN_INFO "snull_tx  \n");
 	data = skb->data;
 	len = skb->len;
 	if (len < ETH_ZLEN) {
@@ -538,6 +554,7 @@ void snull_tx_timeout (struct net_device *dev)
 {
 	struct snull_priv *priv = netdev_priv(dev);
 
+	printk (KERN_INFO "snull_tx_timeout  \n");
         /* Simulate a transmission interrupt to get things moving */
 	priv->status = SNULL_TX_INTR;
 	snull_interrupt(0, dev, NULL);
@@ -553,6 +570,7 @@ void snull_tx_timeout (struct net_device *dev)
  */
 int snull_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 {
+	printk (KERN_INFO "snull_ioctl  \n");
 	PDEBUG("ioctl\n");
 	return 0;
 }
@@ -563,6 +581,7 @@ int snull_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 struct net_device_stats *snull_stats(struct net_device *dev)
 {
 	struct snull_priv *priv = netdev_priv(dev);
+	printk (KERN_INFO "snull_stats  \n");
 	return &priv->stats;
 }
 
@@ -575,6 +594,7 @@ int snull_rebuild_header(struct sk_buff *skb)
 	struct ethhdr *eth = (struct ethhdr *) skb->data;
 	struct net_device *dev = skb->dev;
     
+	printk (KERN_INFO "snull_rebuild_header  \n");
 	memcpy(eth->h_source, dev->dev_addr, dev->addr_len);
 	memcpy(eth->h_dest, dev->dev_addr, dev->addr_len);
 	eth->h_dest[ETH_ALEN-1]   ^= 0x01;   /* dest is us xor 1 */
@@ -588,6 +608,7 @@ int snull_header(struct sk_buff *skb, struct net_device *dev,
 {
 	struct ethhdr *eth = (struct ethhdr *)skb_push(skb,ETH_HLEN);
 
+	printk (KERN_INFO "snull_header  \n");
 	eth->h_proto = htons(type);
 	memcpy(eth->h_source, saddr ? saddr : dev->dev_addr, dev->addr_len);
 	memcpy(eth->h_dest,   daddr ? daddr : dev->dev_addr, dev->addr_len);
@@ -609,6 +630,7 @@ int snull_change_mtu(struct net_device *dev, int new_mtu)
 	struct snull_priv *priv = netdev_priv(dev);
 	spinlock_t *lock = &priv->lock;
     
+	printk (KERN_INFO "snull_change_mtu  \n");
 	/* check ranges */
 	if ((new_mtu < 68) || (new_mtu > 1500))
 		return -EINVAL;
@@ -651,6 +673,7 @@ void snull_init(struct net_device *dev)
 	 */
 #endif
 
+	printk (KERN_INFO "snull_init  \n");
     	/* 
 	 * Then, assign other fields in dev, using ether_setup() and some
 	 * hand assignments
@@ -693,6 +716,7 @@ void snull_cleanup(void)
 {
 	int i;
     
+	printk (KERN_INFO "snull_cleanup  \n");
 	for (i = 0; i < 2;  i++) {
 		if (snull_devs[i]) {
 			unregister_netdev(snull_devs[i]);
@@ -710,6 +734,7 @@ int snull_init_module(void)
 {
 	int result, i, ret = -ENOMEM;
 
+	printk (KERN_INFO "snull_init_module  \n");
 	snull_interrupt = use_napi ? snull_napi_interrupt : snull_regular_interrupt;
 
 	/* Allocate the devices */
