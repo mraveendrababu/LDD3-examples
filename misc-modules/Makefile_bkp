@@ -4,10 +4,6 @@
 # Makefile once again.
 # This conditional selects whether we are being included from the
 # kernel Makefile or not.
-MY_CFLAGS += -g -DDEBUG
-ccflags-y += ${MY_CFLAGS}
-CC += ${MY_CFLAGS}
-
 ifeq ($(KERNELRELEASE),)
 
     # Assume the source tree is where the running kernel was built
@@ -17,12 +13,13 @@ ifeq ($(KERNELRELEASE),)
     PWD := $(shell pwd)
 
 modules:
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules EXTRA_CFLAGS="$(MY_CFLAGS)"
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
+
 modules_install:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules_install
 
 clean:
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) clean 
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) clean
 
 .PHONY: modules modules_install clean
 
@@ -31,4 +28,5 @@ else
     obj-m := hello.o hellop.o seq.o jit.o jiq.o sleepy.o complete.o \
              silly.o faulty.o kdatasize.o kdataalign.o
 endif
+
 

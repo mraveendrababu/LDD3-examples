@@ -19,7 +19,7 @@ MODULE_LICENSE("Dual BSD/GPL");
  * hello, and to whom.
  */
 static char *whom = "world";
-static int howmany = 1;
+static int howmany = 3;
 module_param(howmany, int, S_IRUGO);
 module_param(whom, charp, S_IRUGO);
 

@@ -119,6 +119,7 @@ ssize_t silly_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 
 	switch(mode) {
 	  case M_32: 
+	    printk(KERN_INFO "silly_read : from M_32  \n");
 		while (count >= 4) {
 			*(u32 *)ptr = ioread32(add);
 			add += 4;
@@ -128,6 +129,7 @@ ssize_t silly_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 		break;
 	    
 	  case M_16: 
+	    printk(KERN_INFO "silly_read : from M_16  \n");
 		while (count >= 2) {
 			*(u16 *)ptr = ioread16(add);
 			add+=2;
@@ -137,6 +139,7 @@ ssize_t silly_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 		break;
 	    
 	  case M_8: 
+	    printk(KERN_INFO "silly_read : from M_8  \n");
 		while (count) {
 			*ptr = ioread8(add);
 			add++;
@@ -146,6 +149,7 @@ ssize_t silly_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 		break;
 
 	  case M_memcpy:
+	    printk(KERN_INFO "silly_read : from M_memcpy  \n");
 		memcpy_fromio(ptr, add, count);
 		break;
 
@@ -293,6 +297,7 @@ int silly_init(void)
 
 	/* this line appears in silly_init */
 	io_base = ioremap(ISA_BASE, ISA_MAX - ISA_BASE);
+	printk(KERN_INFO "silly_init  and the pointer is :%p \n", io_base);
 	return 0;
 }
 

@@ -23,6 +23,7 @@
 #include <linux/types.h>  /* size_t */
 #include <linux/uaccess.h>
 #include <linux/device.h>
+#include <linux/slab.h>
 
 MODULE_LICENSE("Dual BSD/GPL");
 
@@ -35,15 +36,18 @@ ssize_t faulty_read(struct file *filp, char __user *buf,
 {
 	int i;
 	int ret;
-	char stack_buf[4];
+	char stack_buf[4]={'R','B','M','N'};
 
 	printk(KERN_INFO "faulty_read  \n" );
 	/* Let's try a buffer overflow  */
+    /*
 	for (i = 0; i < 20; i++)
 		*(stack_buf + i) = 0xff;
+    */
 	if (count > 4)
 		count = 4; /* copy 4 bytes to the user */
 	ret = copy_to_user(buf, stack_buf, count);
+	printk(KERN_INFO "faulty_read  the return value copy_to_user : %d   \n", ret );
 	if (!ret)
 		return count;
 	return ret;
@@ -52,9 +56,32 @@ ssize_t faulty_read(struct file *filp, char __user *buf,
 ssize_t faulty_write (struct file *filp, const char __user *buf, size_t count,
 		loff_t *pos)
 {
+    char *d;
+    char *m1;
+    char *m2;
+
 	/* make a simple fault by dereferencing a NULL pointer */
 	printk(KERN_INFO "faulty_write  \n" );
-	*(int *)0 = 0;
+
+    d = kmalloc( count , GFP_KERNEL );
+	printk(KERN_INFO "faulty_write : allocated %d bytes  and   \n", count );
+    //copy_from_user( d, buf, count );
+    memcpy( d, buf, count );
+	printk(KERN_INFO "faulty_write : copied the bytes %d bytes  \n", count );
+	printk(KERN_INFO "faulty_write : The string is as In D  :%s   \n",  d );
+	printk(KERN_INFO "faulty_write : Now copying through memcpy - kernel to Kernel buffer \n");
+    m1 = kmalloc( count , GFP_KERNEL );
+	printk(KERN_INFO "faulty_write : allocated %d bytes  for M1   \n", count );
+    memcpy(m1, d, count );
+	printk(KERN_INFO "faulty_write : copied the bytes %d bytes  \n", count );
+	printk(KERN_INFO "faulty_write : The string is M1 :%s   \n",  d );
+	//*(int *)0 = 0;
+	printk(KERN_INFO "faulty_write : Now copying through memcpy - user to Kernel buffer \n");
+    m2 = kmalloc( count , GFP_KERNEL );
+	printk(KERN_INFO "faulty_write : allocated %d bytes  for M2   \n", count );
+    memcpy(m2, buf, count );
+	printk(KERN_INFO "faulty_write : copied the bytes %d bytes  \n", count );
+	printk(KERN_INFO "faulty_write : The string is M2 :%s   \n",  d );
 	return 0;
 }
 
